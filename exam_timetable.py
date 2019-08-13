@@ -15,12 +15,12 @@ class Timetable:
         self.__edited = True
         self.__deleted = True
 
-        # Setting the places from a user given file
+        # Setting the exams from a user given file
         try:
             for line in self.__read_from_file():
-                self.__places.append(Place(line))
+                self.__exams.append(Exam(line))
         except:
-            self.__places = []
+            self.__exams = []
             error = Tk()
             text_thing = "You have imported a incorrectly formatted file"
             error_label = Label(error,
@@ -96,7 +96,7 @@ class Timetable:
         padding.grid(column=0, row=3)
 
     def __enter_final(self):
-        # Set the line in which the place can be derived
+        # Set the line in which the exam can be derived
         check_1 = "," in self.__name_entry.get()
         check_2 = "," in self.__date_entry.get()
         check_3 = "," in self.__time_entry.get()
@@ -114,11 +114,11 @@ class Timetable:
             exam_line += self.__date_entry.get() + ","
             exam_line += self.__time_entry.get() + ","
             exam_line += self.__location_entry.get() + "\n"
-            # Add the place
+            # Add the exam
             self.__exams.append(exam(exam_line))
             self.__clear()
 
-    def __find_maori(self):
+    def __find_name(self):
         # Exiting mid function, it won't edit or delete unexpectedly
         if self.__edited:
             self.__edited = False
@@ -137,160 +137,166 @@ class Timetable:
         self.__clear()
         self.__find_list = []
         # Creating the frame for the method
-        self.__find_maori_frame = Frame(self.__parent)
-        self.__find_maori_frame.grid(column=0, row=0,
+        self.__find_name_frame = Frame(self.__parent)
+        self.__find_name_frame.grid(column=0, row=0,
                                      columnspan=3, sticky="WE")
 
         # Creating the entry variable
-        self.__maori_find = StringVar()
+        self.__name_find = StringVar()
 
         # Creating the label
-        find_maori_label = Label(self.__find_maori_frame,
-                                 text="Enter the Maori place name",
+        find_name_label = Label(self.__find_name_frame,
+                                 text="Enter the exam name",
                                  height=2)
-        find_maori_label.grid(row=0, column=0)
+        find_name_label.grid(row=0, column=0)
 
         # Creating the entry
-        find_maori_entry = Entry(self.__find_maori_frame,
-                                 textvariable=self.__maori_find)
-        find_maori_entry.grid(row=0, column=1)
+        find_name_entry = Entry(self.__find_name_frame,
+                                 textvariable=self.__name_find)
+        find_name_entry.grid(row=0, column=1)
 
         # Creating the confirmation button
-        find_maori_confirm_button = Button(self.__find_maori_frame,
+        find_name_confirm_button = Button(self.__find_name_frame,
                                            text="Confirm!!!",
-                                           command=self.__find_maori_final)
-        find_maori_confirm_button.grid(column=2, row=0,
+                                           command=self.__find_name_final)
+        find_name_confirm_button.grid(column=2, row=0,
                                        columnspan=3, sticky="WE")
 
         # Creating a empty label for single sided padding
-        find_maori_padding = Label(self.__find_maori_frame, text="")
-        find_maori_padding.grid(column=0, row=6)
+        find_name_padding = Label(self.__find_name_frame, text="")
+        find_name_padding.grid(column=0, row=6)
 
-    def __find_maori_final(self):
+    def __find_name_final(self):
         display_text = ""
-        for place in self.__places:
-            # Check if the given name matches any english name
-            if self.__maori_find.get().upper() in place.get_maori().upper():
-                self.__find_list.append(place)
+        for exam in self.__exams:
+            # Check if the given name matches any exam name
+            if self.__name_find.get().upper() in exam.get_name().upper():
+                self.__find_list.append(exam)
 
         if len(self.__find_list) > 0:
             self.__shown = True
 
         if self.__shown:
-            max_english = 7    # The 7 is from the length of the word "English"
-            max_maori = 5
-            max_description = 11
-            for place in self.__find_list:
-                if len(place.get_english()) > max_english:
-                    max_english = len(place.get_english())
-                if len(place.get_maori()) > max_maori:
-                    max_maori = len(place.get_maori())
-                if len(place.get_description()) > max_description:
-                    max_description = len(place.get_description())
+            max_name = 4    # The 7 is from the length of the word "English"
+            max_date = 4
+            max_time = 4
+            max_location = 8
+            for exam in self.__find_list:
+                if len(exam.get_name()) > max_name:
+                    max_name = len(exam.get_name())
+                if len(exam.get_date()) > max_date:
+                    max_date = len(exam.get_date())
+                if len(exam.get_time()) > max_time:
+                    max_time = len(exam.get_time())
+                if len(exam.get_location()) > max_location:
+                    max_location = len(exam.get_location())
 
-            scrolled_width = max_description + max_english + max_maori + 4
-            self.__view_scrolled = ScrolledText(self.__find_maori_frame,
+            scrolled_width = max_name + max_date + max_time + max_location + 6
+            self.__view_scrolled = ScrolledText(self.__find_name_frame,
                                                 width=scrolled_width,
                                                 height=5, wrap="word")
 
             # Inserting the formatted lines
-            for place in self.__find_list:
-                output_string = place.get_english()
-                output_string += " "*(max_english-len(place.get_english()))
-                output_string += " |" + place.get_maori()
-                output_string += " "*(max_maori-len(place.get_maori()))
-                output_string += " |" + place.get_description()
-                str_index = str(float(self.__places.index(place)+1))
+            for exam in self.__find_list:
+                output_string = exam.get_name()
+                output_string += " "*(max_name-len(exam.get_name()))
+                output_string += " |" + exam.get_date()
+                output_string += " "*(max_date-len(exam.get_date()))
+                output_string += " |" + exam.get_time()
+                output_string += " "*(max_time-len(exam.get_time()))
+                output_string += " |" + exam.get_location()
+                str_index = str(float(self.__exams.index(exam)+1))
                 self.__view_scrolled.insert(str_index, output_string)
 
             # Inserting the intial column headers
-            # the max - len("English") or 7 to add the correct whitespace
-            output_string = "English" + " "*(max_english-7)+" |Maori"
-            output_string += " "*(max_maori - 5) + " |Description\n"
+            # the max - len("Name") or 4 to add the correct whitespace
+            output_string = "Name" + " "*(max_name-4)+" |Date"
+            output_string += " "*(max_date - 4) + " |Time"
+            output_string += " "*(max_time - 4) + " |Location\n"
             self.__view_scrolled.insert("0.0", output_string)
 
             self.__view_scrolled.grid(row=1, column=0, columnspan=3)
 
         else:
             # If there is nothing matching the given name, inform the user
-            display_text = self.__maori_find.get()
+            display_text = self.__name_find.get()
             display_text += " does not exsist in our database."
-            display_label = Label(self.__find_maori_frame, text=display_text)
+            display_label = Label(self.__find_name_frame, text=display_text)
             display_label.grid(column=0, row=1, columnspan=3, sticky="WE")
 
         if self.__editing:
-            self.__places_edit = []
-            # Put the placenames as things to select form
-            for place in self.__find_list:
-                self.__places_edit.append(place.get_maori())
+            self.__exams_edit = []
+            # Put the exam names as things to select form
+            for exam in self.__find_list:
+                self.__exams_edit.append(exam.get_name())
             # Set up the comboboxes and entry
-            self.__editing_place = StringVar()
-            self.__editing_attributes = ["English", "Maori", "Description"]
+            self.__editing_exam = StringVar()
+            self.__editing_attributes = ["Name", "Date", "Time", "Location"]
             self.__attribute = StringVar()
             self.__attribute_edit = StringVar()
-            self.__attribute_menu = ttk.Combobox(self.__find_maori_frame,
+            self.__attribute_menu = ttk.Combobox(self.__find_name_frame,
                                                  textvariable=self.__attribute,
                                                  state="readonly")
             self.__attribute_menu["values"] = self.__editing_attributes
             self.__attribute_menu.grid(row=4, column=1)
 
-            self.__place_menu = ttk.Combobox(self.__find_maori_frame,
-                                             textvariable=self.__editing_place,
+            self.__exam_menu = ttk.Combobox(self.__find_name_frame,
+                                             textvariable=self.__editing_exam,
                                              state="readonly")
-            self.__place_menu["values"] = self.__places_edit
-            self.__place_menu.grid(row=4, column=0)
+            self.__exam_menu["values"] = self.__exams_edit
+            self.__exam_menu.grid(row=4, column=0)
 
-            self.__attribute_entry = Entry(self.__find_maori_frame,
+            self.__attribute_entry = Entry(self.__find_name_frame,
                                            textvariable=self.__attribute_edit)
             self.__attribute_entry.grid(row=4, column=2)
 
             # Set up the respective labels
-            self.__place_label = Label(self.__find_maori_frame,
-                                       text="Place to edit")
-            self.__place_label.grid(column=0, row=3)
+            self.__exam_label = Label(self.__find_name_frame,
+                                       text="Exam to edit")
+            self.__exam_label.grid(column=0, row=3)
 
-            self.__attribute_label = Label(self.__find_maori_frame,
+            self.__attribute_label = Label(self.__find_name_frame,
                                            text="Attribute to edit")
             self.__attribute_label.grid(column=1, row=3)
 
-            self.__attribute_entry_label = Label(self.__find_maori_frame,
+            self.__attribute_entry_label = Label(self.__find_name_frame,
                                                  text="Enter the change")
             self.__attribute_entry_label.grid(column=2, row=3)
 
             # Confirm button
-            self.__confirm_button = Button(self.__find_maori_frame,
-                                           command=self.__final_maori_edit,
+            self.__confirm_button = Button(self.__find_name_frame,
+                                           command=self.__final_name_edit,
                                            text="Confirm!")
             self.__confirm_button.grid(row=5, column=1)
 
         if self.__deleteing:
-            self.__places_edit = []
-            # Put the placenames as things to select form
-            for place in self.__find_list:
-                self.__places_edit.append(place.get_maori())
+            self.__exams_edit = []
+            # Put the exam names as things to select form
+            for exam in self.__find_list:
+                self.__exams_edit.append(exam.get_name())
 
             # Set up the combo box to delete a user, the button and the label
-            self.__delete_place = StringVar()
-            self.__place_menu = ttk.Combobox(self.__find_maori_frame,
-                                             textvariable=self.__delete_place,
+            self.__delete_exam = StringVar()
+            self.__exam_menu = ttk.Combobox(self.__find_name_frame,
+                                             textvariable=self.__delete_exam,
                                              state="readonly")
-            self.__place_menu["values"] = self.__places_edit
-            self.__place_menu.grid(row=3, column=1)
+            self.__exam_menu["values"] = self.__exams_edit
+            self.__exam_menu.grid(row=3, column=1)
 
-            self.__place_label = Label(self.__find_maori_frame,
-                                       text="Place to delete")
-            self.__place_label.grid(column=0, row=3)
+            self.__exam_label = Label(self.__find_name_frame,
+                                       text="Exam to delete")
+            self.__exam_label.grid(column=0, row=3)
 
-            self.__confirm_button = Button(self.__find_maori_frame,
-                                           command=self.__final_maori_delete,
+            self.__confirm_button = Button(self.__find_name_frame,
+                                           command=self.__final_name_delete,
                                            text="Confirm!")
             self.__confirm_button.grid(row=3, column=2)
 
-    def __final_maori_edit(self):
-        error_label = Label(self.__find_maori_frame,
+    def __final_name_edit(self):
+        error_label = Label(self.__find_name_frame,
                             text="Please do not use ',' or '\n'")
-        for i in range(len(self.__places)):
-            if self.__places[i].get_maori() == self.__editing_place.get():
+        for i in range(len(self.__exams)):
+            if self.__exams[i].get_name() == self.__editing_exam.get():
                 if "\n" in self.__attribute.get():
                     error_label.grid(column=0, row=6, columnspan=3)
                 elif self.__attribute.get() == "English":
@@ -321,215 +327,6 @@ class Timetable:
     def __final_maori_delete(self):
         for i in range(len(self.__places)):
             if self.__places[i].get_maori() == self.__delete_place.get():
-                self.__places.pop(i)
-        self.__clear()
-        self.__deleted = True
-
-    def __find_english(self):
-        # When exiting mid function, it won't edit or delete unexpectedly
-        if self.__edited:
-            self.__edited = False
-        else:
-            self.__edited = True
-            self.__editing = False
-
-        if self.__deleted:
-            self.__deleted = False
-        else:
-            self.__deleted = True
-            self.__deleting = False
-
-        # This is to make sure there is something displayed
-        self.__shown = False
-        self.__clear()
-        self.__find_list = []
-        # Creating the frame for the method
-        self.__find_english_frame = Frame(self.__parent)
-        self.__find_english_frame.grid(column=0, row=0,
-                                       columnspan=3, sticky="WE")
-
-        # Creating the entry variable
-        self.__english_find = StringVar()
-
-        # Creating the label
-        find_english_label = Label(self.__find_english_frame,
-                                   text="Enter the English place name",
-                                   height=2)
-        find_english_label.grid(row=0, column=0)
-
-        # Creating the entry
-        find_english_entry = Entry(self.__find_english_frame,
-                                   textvariable=self.__english_find)
-        find_english_entry.grid(row=0, column=1)
-
-        # Creating the confirmation button
-        find_english_confirm_button = Button(self.__find_english_frame,
-                                             text="Confirm!!!",
-                                             command=self.__find_english_final)
-        find_english_confirm_button.grid(column=2, row=0,
-                                         columnspan=3, sticky="WE")
-
-        # Creating a empty label for single sided padding
-        find_english_padding = Label(self.__find_english_frame, text="")
-        find_english_padding.grid(column=0, row=6)
-
-    def __find_english_final(self):
-        display_text = ""
-        for place in self.__places:
-            # Check if the given name matches any english name
-            place_english = place.get_english().upper()
-            if self.__english_find.get().upper() in place_english:
-                self.__find_list.append(place)
-
-        if len(self.__find_list) > 0:
-            self.__shown = True
-
-        if self.__shown:
-            max_english = 7    # The 7 is from the length of the word "English"
-            max_maori = 5
-            max_description = 11
-            for place in self.__find_list:
-                if len(place.get_english()) > max_english:
-                    max_english = len(place.get_english())
-                if len(place.get_maori()) > max_maori:
-                    max_maori = len(place.get_maori())
-                if len(place.get_description()) > max_description:
-                    max_description = len(place.get_description())
-
-            scrolled_width = max_description + max_english + max_maori + 4
-            self.__view_scrolled = ScrolledText(self.__find_english_frame,
-                                                width=scrolled_width,
-                                                height=5, wrap="word")
-
-            # Inserting the formatted lines
-            for place in self.__find_list:
-                output_string = place.get_english()
-                output_string += " "*(max_english-len(place.get_english()))
-                output_string += " |" + place.get_maori()
-                output_string += " "*(max_maori-len(place.get_maori()))
-                output_string += " |" + place.get_description()
-                str_index = str(float(self.__places.index(place)+1))
-                self.__view_scrolled.insert(str_index, output_string)
-
-            # Inserting the intial column headers
-            # the max - len("English") or 7 to add the correct whitespace
-            output_string = "English" + " "*(max_english-7)+" |Maori"
-            output_string += " "*(max_maori - 5) + " |Description\n"
-            self.__view_scrolled.insert("0.0", output_string)
-
-            self.__view_scrolled.grid(row=1, column=0, columnspan=3)
-
-        else:
-            # If there is nothing matching the given name, inform the user
-            display_text = self.__english_find.get()
-            display_text += " does not exsist in our database."
-            display_label = Label(self.__find_english_frame, text=display_text)
-            display_label.grid(column=0, row=1, columnspan=3, sticky="WE")
-
-        if self.__editing and self.__shown:
-            self.__places_edit = []
-            # Put the placenames as things to select form
-            for place in self.__find_list:
-                self.__places_edit.append(place.get_english())
-            # Set up the comboboxes and entry
-            self.__editing_place = StringVar()
-            self.__editing_attributes = ["English", "Maori", "Description"]
-            self.__attribute = StringVar()
-            self.__attribute_edit = StringVar()
-            self.__attribute_menu = ttk.Combobox(self.__find_english_frame,
-                                                 textvariable=self.__attribute,
-                                                 state="readonly")
-            self.__attribute_menu["values"] = self.__editing_attributes
-            self.__attribute_menu.grid(row=4, column=1)
-
-            self.__place_menu = ttk.Combobox(self.__find_english_frame,
-                                             textvariable=self.__editing_place,
-                                             state="readonly")
-            self.__place_menu["values"] = self.__places_edit
-            self.__place_menu.grid(row=4, column=0)
-
-            self.__attribute_entry = Entry(self.__find_english_frame,
-                                           textvariable=self.__attribute_edit)
-            self.__attribute_entry.grid(row=4, column=2)
-
-            # Set up the respective labels
-            self.__place_label = Label(self.__find_english_frame,
-                                       text="Place to edit")
-            self.__place_label.grid(column=0, row=3)
-
-            self.__attribute_label = Label(self.__find_english_frame,
-                                           text="Attribute to edit")
-            self.__attribute_label.grid(column=1, row=3)
-
-            self.__attribute_entry_label = Label(self.__find_english_frame,
-                                                 text="Enter the change")
-            self.__attribute_entry_label.grid(column=2, row=3)
-
-            # Confirm button
-            self.__confirm_button = Button(self.__find_english_frame,
-                                           command=self.__final_english_edit,
-                                           text="Confirm!")
-            self.__confirm_button.grid(row=5, column=1)
-
-        if self.__deleteing and self.__shown:
-            self.__places_edit = []
-            # Put the placenames as things to select form
-            for place in self.__find_list:
-                self.__places_edit.append(place.get_english())
-
-            # Set up the combo box to delete a user, the button and the label
-            self.__delete_place = StringVar()
-            self.__place_menu = ttk.Combobox(self.__find_english_frame,
-                                             textvariable=self.__delete_place,
-                                             state="readonly")
-            self.__place_menu["values"] = self.__places_edit
-            self.__place_menu.grid(row=3, column=1)
-
-            self.__place_label = Label(self.__find_english_frame,
-                                       text="Place to delete")
-            self.__place_label.grid(column=0, row=3)
-
-            self.__confirm_button = Button(self.__find_english_frame,
-                                           command=self.__final_english_delete,
-                                           text="Confirm!")
-            self.__confirm_button.grid(row=3, column=2)
-
-    def __final_english_edit(self):
-        error_label = Label(self.__find_english_frame,
-                            text="Please do not use ',' or '\n'")
-        for i in range(len(self.__places)):
-            if self.__places[i].get_english() == self.__editing_place.get():
-                if '\n' in self.__attribute.get():
-                    error_label.grid(column=0, row=6, columnspan=3)
-                elif self.__attribute.get() == "English":
-                    if "," in self.__attribute_edit.get():
-                        error_label.grid(column=0, row=6, columnspan=3)
-                    else:
-                        self.__places[i].change_english(
-                            self.__attribute_edit.get())
-                        self.__clear()
-                        self.__edited = True
-                        self.__shown = False
-                elif self.__attribute.get() == "Maori":
-                    if "," in self.__attribute_edit.get():
-                        error_label.grid(column=0, row=6, columnspan=3)
-                    else:
-                        self.__places[i].change_maori(
-                            self.__attribute_edit.get())
-                        self.__clear()
-                        self.__edited = True
-                        self.__shown = False
-                elif self.__attribute.get() == "Description":
-                    self.__places[i].change_description(
-                        self.__attribute_edit.get()+"\n")
-                    self.__clear()
-                    self.__edited = True
-                    self.__shown = False
-
-    def __final_english_delete(self):
-        for i in range(len(self.__places)):
-            print()
-            if self.__places[i].get_english() == self.__delete_place.get():
                 self.__places.pop(i)
         self.__clear()
         self.__deleted = True
