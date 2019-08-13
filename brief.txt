@@ -1,0 +1,21 @@
+Exam Timetable
+
+You are aware that:
+ Exams are important
+ You are forgetful
+ You can use a computer to help your memory
+
+Hence will develop a prototype for a program that will store data about your exams.
+
+There will be several exams, and for each exam, you will need to specify:
+ Date
+ Morning or Afternoon
+ Exam title
+ Location (i.e. Room number)
+
+You must:
+ Be able to add an exam
+ Be able to delete an exam
+ Be able to edit an exam
+ Use persistent storage (i.e. store the data in a file)
+ Be able to show a list of exams
