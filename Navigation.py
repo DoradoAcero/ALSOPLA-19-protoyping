@@ -14,34 +14,36 @@ class Navigation:
     def __init__(self, __parent):
         self.__parent = __parent
         self.__users = []
-        # Importing the lines of the csv file\
-#         import csv
-#         with open("ratings.csv") as csv_file:
-#             csv_reader = csv.reader(csv_file, delimiter=",", encoding="utf-8")
-#             line_0 = True
-#             user = 1
-#             ratings = {}
-#             for row in csv_reader:
-#                 if line_0:
-#                     print(f"Column name are {", ".join(row)}")
-#                     line_0 = False
-#                 else:
-#                     if user == row:
-#                           self.__users.append(User(ratings, user))
+        # Importing the lines of the csv file
+        import csv
+        with open("ratings.csv") as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=",")
+            line_0 = True
+            user = 1
+            ratings = {}
+            for row in csv_reader:
+                if line_0:
+                    line_0 = False
+                else:
+                    if user != int(row[0]):
+                        self.__users.append(User(ratings, user))
+                        ratings = {row[1]:row[2]}
+                        user += 1
+                    else:
+                        ratings[row[1]] = row[2]
                           
-        
-        
 
 class User:
     """the assisting class that stores a user and all its properties"""
-    UPPER_RATING = 4
-    LOWER_RATING = 2
+    
     
     """Despite the current iteration of engine only using
     likes and dislikes, i will keep the ratings in and process it in class"""
     
     def __init__(self, ratings, identification):
         """sets up the intial variables and the intial sets"""
+        self.UPPER_RATING = 4
+        self.LOWER_RATING = 2
         self.id = identification
         self.__ratings = ratings
         self.__liked = set()
@@ -51,9 +53,9 @@ class User:
     
     def __rate(self, movie):
         """Given a movie, put it into a like or disliked set"""
-        if self.__ratings[movie] >= UPPER_RATING:
+        if float(self.__ratings[movie]) >= self.UPPER_RATING:
             self.likes(movie)
-        elif self.__ratings[movie] <= LOWER_RATING:
+        elif float(self.__ratings[movie]) <= self.LOWER_RATING:
             self.dislikes(movie)
                 
     def likes(self, movie):
@@ -102,3 +104,4 @@ if __name__ == "__main__":
     root = Tk()
     Navigation(root)
     root.mainloop()
+
