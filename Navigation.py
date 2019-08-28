@@ -42,7 +42,26 @@ class Navigation:
                     line_0 = False
                 else:
                     self.__movies.append(Movie(row[0], row[1], row[2]))
-        print("done")
+
+        #setting the current user and the requested no of reccomendations
+        USER = 6
+        no_reccomendations = 5
+
+        self.__USER = self.__users[USER-1]
+
+        self.__similarity_index = {}
+        
+        for user in self.__users:
+            if user == self.__USER:
+                pass
+            else:
+                self.__similarity_index[user.id] = self.similarity(user)
+
+    def similarity(self, user):
+        agree = len(user.get_liked() & self.__USER.get_liked()) + len(user.get_disliked() & self.__USER.get_disliked())
+        disagree = len(user.get_liked() & self.__USER.get_disliked()) + len(user.get_disliked() & self.__USER.get_liked())
+        total = len(user.get_liked() | self.__USER.get_disliked() | user.get_disliked() | self.__USER.get_liked())
+        return (agree-disagree)/total
         
         
 
