@@ -8,11 +8,12 @@ from tkinter.scrolledtext import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfile
 from tkinter import ttk
-from set_engine import Set_engine
+from classic_set_engine import Set_engine
 
 class Navigation:
-    """the main operating function/class of the prototype"""
+    
     def __init__(self, __parent):
+        """The main rountine of the navigation classs"""
         self.__parent = __parent
         self.__users = []
         self.__movies = []
@@ -30,10 +31,10 @@ class Navigation:
                 else:
                     if user != int(row[0]):
                         self.__users.append(User(ratings, user))
-                        ratings = {int(row[1]):int(row[2])}
+                        ratings = {int(row[1]):float(row[2])}
                         user += 1
                     else:
-                        ratings[int(row[1])] = int(row[2])
+                        ratings[int(row[1])] = float(row[2])
                         
         with open("movies.csv", encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
@@ -44,7 +45,7 @@ class Navigation:
                 else:
                     self.__movies.append(Movie(int(row[0]), row[1], row[2]))
 
-        engine = Set_engine(self.__users, self.__movies, 6, 5)
+        engine = Set_engine(self.__users, self.__movies, 6)
         
 
 class User:
@@ -67,9 +68,9 @@ class User:
     
     def __rate(self, movie):
         """Given a movie, put it into a like or disliked set"""
-        if float(self.__ratings[movie]) >= self.UPPER_RATING:
+        if self.__ratings[movie] >= self.UPPER_RATING:
             self.likes(movie)
-        elif float(self.__ratings[movie]) <= self.LOWER_RATING:
+        elif self.__ratings[movie] <= self.LOWER_RATING:
             self.dislikes(movie)
                 
     def likes(self, movie):
