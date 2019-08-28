@@ -14,7 +14,9 @@ class Navigation:
     def __init__(self, __parent):
         self.__parent = __parent
         self.__users = []
-        # Importing the lines of the csv file
+        self.__movies = []
+        
+        # Importing the lines of the csv file to init the users
         import csv
         with open("ratings.csv") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
@@ -31,7 +33,18 @@ class Navigation:
                         user += 1
                     else:
                         ratings[row[1]] = row[2]
-                          
+                        
+        with open("movies.csv", encoding="utf-8") as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=",")
+            line_0 = True
+            for row in csv_reader:
+                if line_0:
+                    line_0 = False
+                else:
+                    self.__movies.append(Movie(row[0], row[1], row[2]))
+        print("done")
+        
+        
 
 class User:
     """the assisting class that stores a user and all its properties"""
@@ -104,4 +117,3 @@ if __name__ == "__main__":
     root = Tk()
     Navigation(root)
     root.mainloop()
-
