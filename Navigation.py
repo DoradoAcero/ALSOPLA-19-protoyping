@@ -8,6 +8,7 @@ from tkinter.scrolledtext import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfile
 from tkinter import ttk
+from set_engine import Set_engine
 
 class Navigation:
     """the main operating function/class of the prototype"""
@@ -16,7 +17,7 @@ class Navigation:
         self.__users = []
         self.__movies = []
         
-        # Importing the lines of the csv file to init the users
+        # Importing the lines of the csv file to init the users and the movies
         import csv
         with open("ratings.csv") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
@@ -29,10 +30,10 @@ class Navigation:
                 else:
                     if user != int(row[0]):
                         self.__users.append(User(ratings, user))
-                        ratings = {row[1]:row[2]}
+                        ratings = {int(row[1]):int(row[2])}
                         user += 1
                     else:
-                        ratings[row[1]] = row[2]
+                        ratings[int(row[1])] = int(row[2])
                         
         with open("movies.csv", encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
@@ -41,28 +42,9 @@ class Navigation:
                 if line_0:
                     line_0 = False
                 else:
-                    self.__movies.append(Movie(row[0], row[1], row[2]))
+                    self.__movies.append(Movie(int(row[0]), row[1], row[2]))
 
-        #setting the current user and the requested no of reccomendations
-        USER = 6
-        no_reccomendations = 5
-
-        self.__USER = self.__users[USER-1]
-
-        self.__similarity_index = {}
-        
-        for user in self.__users:
-            if user == self.__USER:
-                pass
-            else:
-                self.__similarity_index[user.id] = self.similarity(user)
-
-    def similarity(self, user):
-        agree = len(user.get_liked() & self.__USER.get_liked()) + len(user.get_disliked() & self.__USER.get_disliked())
-        disagree = len(user.get_liked() & self.__USER.get_disliked()) + len(user.get_disliked() & self.__USER.get_liked())
-        total = len(user.get_liked() | self.__USER.get_disliked() | user.get_disliked() | self.__USER.get_liked())
-        return (agree-disagree)/total
-        
+        engine = Set_engine(self.__users, self.__movies, 6, 5)
         
 
 class User:
