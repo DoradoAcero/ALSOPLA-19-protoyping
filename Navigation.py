@@ -17,9 +17,13 @@ class Navigation:
         self.__parent = __parent
         self.__users = []
         self.__movies = []
+        number_reccomendations = 5
         
         # Importing the lines of the csv file to init the users and the movies
         import csv
+        import time
+        old = time.time()
+        print("Importing Users")
         with open("ratings.csv") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             line_0 = True
@@ -35,7 +39,8 @@ class Navigation:
                         user += 1
                     else:
                         ratings[int(row[1])] = float(row[2])
-                        
+        print("{} users imported\n".format(len(self.__users)))
+        print("Importing movies")
         with open("movies.csv", encoding="utf-8") as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             line_0 = True
@@ -44,8 +49,17 @@ class Navigation:
                     line_0 = False
                 else:
                     self.__movies.append(Movie(int(row[0]), row[1], row[2]))
+        print("{} movies imported\n".format(len(self.__movies)))
+        print("Setting up engine")
+        self.__engine = Set_engine(self.__users, self.__movies, 6)
+        print("Engine setup\n")
+        print(time.time() - old, "\n")
 
-        engine = Set_engine(self.__users, self.__movies, 6)
+        reccomendations = self.__engine.reccommend(number_reccomendations)
+        #reccomendations = self.__engine.get_possibility()
+        for i in range(len(reccomendations[0])):
+            print(reccomendations[0][i].get_name(), reccomendations[1][i])
+        
         
 
 class User:

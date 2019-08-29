@@ -3,6 +3,8 @@ classic_set_engine.py
 created by lachlan on 28/8/19
 """
 import heapq
+
+
 class Set_engine:
     
     def __init__(self, users, movies, user):
@@ -14,17 +16,18 @@ class Set_engine:
         # Setting the similarity indexes
 
         self.__similarity_index = {}
-
+        print("Setting up similiarity index")
         for user in users:
             if user == self.__USER: # Not the user being selected for
                 pass
             else:
                 self.__similarity_index[user] = self.similarity(user)
-
+        print("Similiarity index setup\n")
+        print("Setting up possibility index")
         self.__possibility_index = {}
         for movie in movies:
             self.__possibility_index[movie] = self.possibility(movie)
-            print(self.__possibility_index[movie])
+        print("Possibility index setup\n")
 
     def similarity(self, user):
         """judges the similarity of a user to the main user"""
@@ -52,7 +55,25 @@ class Set_engine:
         else:
             return 0
 
+    def get_possibility(self):
+        length = len(self.__possibility_index)
+        values = heapq.nlargest(length, self.__possibility_index.values())
+        final_movies = []
+        for i in range(length):
+            for key in self.__possibility_index.keys():
+                if self.__possibility_index[key] == values[i]:
+                    if not key in final_movies:
+                        final_movies.append(key)
+        return [final_movies, values]
+
     def reccommend(self, reccomend):
         """Reccommend the main user movies"""
-        return heapq.nlargest(reccomend, self.__possiblity_index)
+        values = heapq.nlargest(reccomend, self.__possibility_index.values())
+        final_movies = []
+        for i in range(reccomend):
+            for key in self.__possibility_index.keys():
+                if self.__possibility_index[key] == values[i]:
+                    if not key in final_movies:
+                        final_movies.append(key)
+        return [final_movies, values]
 
