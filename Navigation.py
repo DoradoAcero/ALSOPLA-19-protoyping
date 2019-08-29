@@ -53,12 +53,9 @@ class Navigation:
         print("Setting up engine")
         self.__engine = Set_engine(self.__users, self.__movies, 6)
         print("Engine setup\n")
-        print(time.time() - old, "\n")
+        print("Setup time taken,", time.time() - old, "\n")
 
-        reccomendations = self.__engine.reccommend(number_reccomendations)
-        #reccomendations = self.__engine.get_possibility()
-        for i in range(len(reccomendations[0])):
-            print(reccomendations[0][i].get_name(), reccomendations[1][i])
+        
         
         
 
