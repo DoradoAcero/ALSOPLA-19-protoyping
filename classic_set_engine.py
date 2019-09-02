@@ -24,9 +24,12 @@ class Set_engine:
                 self.__similarity_index[user] = self.similarity(user)
         print("Similiarity index setup\n")
         print("Setting up possibility index")
-        self.__possibility_index = {}
+        self.__possibility_index = []
         for movie in movies:
-            self.__possibility_index[movie] = self.possibility(movie)
+            possibility = self.possibility(movie)
+            self.__possibility_index.append((possibility, movie))
+        import operator
+        self.__possibility_index.sort(key = operator.itemgetter(0))
         print("Possibility index setup\n")
 
     def similarity(self, user):
@@ -55,25 +58,11 @@ class Set_engine:
         else:
             return 0
 
-    def get_possibility(self):
-        length = len(self.__possibility_index)
-        values = heapq.nlargest(length, self.__possibility_index.values())
-        final_movies = []
-        for i in range(length):
-            for key in self.__possibility_index.keys():
-                if self.__possibility_index[key] == values[i]:
-                    if not key in final_movies:
-                        final_movies.append(key)
-        return [final_movies, values]
-
+    def get_possibilities(self):
+        """Get all the possibilities for all the movies"""
+        return self.__possibility_index
+        
     def reccommend(self, reccomend):
         """Reccommend the main user movies"""
-        values = heapq.nlargest(reccomend, self.__possibility_index.values())
-        final_movies = []
-        for i in range(reccomend):
-            for key in self.__possibility_index.keys():
-                if self.__possibility_index[key] == values[i]:
-                    if not key in final_movies:
-                        final_movies.append(key)
-        return [final_movies, values]
+        return self.__possibility_index[0:reccomend-1]
 

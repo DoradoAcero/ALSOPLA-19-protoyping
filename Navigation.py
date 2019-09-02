@@ -55,9 +55,6 @@ class Navigation:
         print("Engine setup\n")
         print("Setup time taken,", time.time() - old, "\n")
 
-        
-        
-        
 
 class User:
     """the assisting class that stores a user and all its properties"""
