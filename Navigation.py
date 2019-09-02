@@ -51,10 +51,32 @@ class Navigation:
                     self.__movies.append(Movie(int(row[0]), row[1], row[2]))
         print("{} movies imported\n".format(len(self.__movies)))
         print("Setting up engine")
+        # Setting up the engine, in this current version there is only the classic set engine, I need to think about how to change but given i only have the set engine i will not think about that yet
         self.__engine = Set_engine(self.__users, self.__movies, 6)
         print("Engine setup\n")
         print("Setup time taken,", time.time() - old, "\n")
+        self.__possibilities = self.__engine.get_possibilities()
 
+        # Setting up the GUI
+
+        # Setting up the search
+        self.__search_button = Button(self.__parent, text="Search", command=self.search())
+        self.__search_button.grid(row=0, column=1, sticky="WE")
+
+        self.__search_variable = StringVar()
+        self.__search_entry = Entry(self.__parent, textvariable = self.__search_variable)
+        self.__search_entry.grid(row=0, column=0)
+
+        # Setting up the intial reccomendations
+        self.__reccomend_frame = Frame(self.__parent)
+        self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies")
+        self.__reccomend_label.grid(row=0, column=0)
+        
+        
+
+    def search(self):
+        """The function to search based on the given text"""
+        pass
 
 class User:
     """the assisting class that stores a user and all its properties"""
