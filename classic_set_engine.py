@@ -2,7 +2,6 @@
 classic_set_engine.py
 created by lachlan on 28/8/19
 """
-import heapq
 
 
 class Set_engine:
@@ -26,8 +25,9 @@ class Set_engine:
         print("Setting up possibility index")
         self.__possibility_index = []
         for movie in movies:
-            possibility = self.possibility(movie)
-            self.__possibility_index.append((possibility, movie))
+            if not movie.id in self.__USER.get_ratings().keys():
+                possibility = self.possibility(movie)
+                self.__possibility_index.append((possibility, movie))
         import operator
         self.__possibility_index.sort(key = operator.itemgetter(0))
         print("Possibility index setup\n")
@@ -65,4 +65,3 @@ class Set_engine:
     def reccommend(self, reccomend):
         """Reccommend the main user movies"""
         return self.__possibility_index[0:reccomend-1]
-
