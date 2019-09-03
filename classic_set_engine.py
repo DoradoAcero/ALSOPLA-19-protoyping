@@ -4,7 +4,7 @@ created by lachlan on 28/8/19
 """
 
 
-class Set_engine:
+class Engine:
     
     def __init__(self, users, movies, user):
         """the main routine of the engine"""
@@ -28,6 +28,7 @@ class Set_engine:
             if not movie.id in self.__USER.get_ratings().keys():
                 possibility = self.possibility(movie)
                 self.__possibility_index.append((possibility, movie))
+                
         import operator
         self.__possibility_index.sort(key = operator.itemgetter(0))
         print("Possibility index setup\n")

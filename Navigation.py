@@ -8,7 +8,7 @@ from tkinter.scrolledtext import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfile
 from tkinter import ttk
-from classic_set_engine import Set_engine
+from classic_set_engine import Engine
 
 class Navigation:
     
@@ -17,7 +17,8 @@ class Navigation:
         self.__parent = __parent
         self.__users = []
         self.__movies = []
-        number_reccomendations = 5
+        self.__NUMBER_RECCOMENDATIONS = 5
+        self.__MAIN_USER = 6
         
         # Importing the lines of the csv file to init the users and the movies
         import csv
@@ -39,6 +40,7 @@ class Navigation:
                         user += 1
                     else:
                         ratings[int(row[1])] = float(row[2])
+        self.__users.append(User(ratings, user))
         print("{} users imported\n".format(len(self.__users)))
         print("Importing movies")
         with open("movies.csv", encoding="utf-8") as csv_file:
@@ -52,70 +54,154 @@ class Navigation:
         print("{} movies imported\n".format(len(self.__movies)))
         print("Setting up engine")
         # Setting up the engine, in this current version there is only the classic set engine, I need to think about how to change but given i only have the set engine i will not think about that yet
-        self.__engine = Set_engine(self.__users, self.__movies, 6)
+        self.__engine = Engine(self.__users, self.__movies, self.__MAIN_USER)
         print("Engine setup\n")
         print("Setup time taken,", time.time() - old, "\n")
         self.__possibilities = self.__engine.get_possibilities()
 
         # Setting up the GUI
-
-        # Setting up the search
-        self.__search_button = Button(self.__parent, text="Search", command=self.search())
-        self.__search_button.grid(row=0, column=1, sticky="WE")
-
-        self.__search_variable = StringVar()
-        self.__search_entry = Entry(self.__parent, textvariable = self.__search_variable)
-        self.__search_entry.grid(row=0, column=0, sticky="WENS")
-
+        
         # Setting up the intial frames
         self.__reccomend_frame = Frame(self.__parent)
         self.__search_frame = Frame(self.__parent)
         self.__rate_frame = Frame(self.__parent)
-        self.__exit_frame = Frame(self.__parent)
+        
+        # Setting up the search
+        self.__search_variable = StringVar()
+        self.__search_entry = Entry(self.__parent, textvariable = self.__search_variable)
+        self.__search_entry.grid(row=0, column=0, sticky="WENS")
+
+        self.__search_button = Button(self.__parent, text="Search", command=self.search)
+        self.__search_button.grid(row=0, column=1, sticky="WE")
 
         # Setting up the intial reccomendations
         self.__reccomend_frame.grid(row=1, column=0, columnspan=2)
         self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies\nMovie:    Percentage Rating:")
-        self.__reccomend_label.grid(row=0, column=0)
+        self.__reccomend_label.grid(row=0, column=0, sticky="WE")
         self.__reccomend_labels = []
         
         # Making the reccomendation labels
-        for possibility, movie in self.__possibilities[-number_reccomendations:]:
+        for possibility, movie in self.__possibilities[-self.__NUMBER_RECCOMENDATIONS:]:
             self.__reccomend_labels.append(Label(self.__reccomend_frame, text="{},    {}%".format(movie.get_name(), self.percentage(possibility))))
     
         for i in range(len(self.__reccomend_labels)):
             self.__reccomend_labels[i].grid(row=6-i, column=0)
 
+        # Making the Quit frame
+        self.__exit_frame = Frame(self.__parent)
+        self.__exit_button = Button(self.__exit_frame, text="Quit", command=self.quit)
+        self.__back_button = Button(self.__exit_frame, text="Back", command=self.back)
+        self.__exit_button.grid(column=0, row=0, sticky="WE")
+        self.__back_button.grid(column=1, row=0, sticky="WE")
+        self.__exit_frame.grid(column=0, row=2, columnspan=2)
+
+    def rate(self, movie):
+        """the function to intiate the rating of a given movie"""
+        self.clear()
+        # Just setting up the GUI elements to input and confirm a rating for a given movie
+        self.__head_label = Label(self.__rate_frame, text="Rate {}".format(movie.get_name()))
+        self.__head_label.grid(column=0, row=0, columnspan=2, sticky="WE")
+
+        self.__rate_variable = StringVar()
+        self.__rate_entry = Entry(self.__rate_frame, textvariable = self.__rate_variable)
+        self.__rate_entry.grid(row=1, column=0, sticky="WENS")
+        self.__rate_label = Label(self.__rate_frame, text="A rating from 0-10\n(integers only)")
+        self.__rate_label.grid(column=1, row=1, sticky="WE")
+        self.__confirm_button = Button(self.__rate_frame, text="Rate", command=lambda :self.final_rate(movie))
+        self.__confirm_button.grid(column=0, row=2, columnspan=2, sticky="WE")
+
+        self.__rate_frame.grid(column=0, row=1, columnspan=2)
+
+    def final_rate(self, movie):
+        """the function to update the rating of the movie for the user"""
+        # Updating the users likes
+        self.__users[self.__MAIN_USER-1].rate(movie.id, int(int(self.__rate_variable.get())/2))
         
+        # Updating the engine to accomodate
+        self.__engine = Engine(self.__users, self.__movies, self.__MAIN_USER)
+        print(len(self.__possibilities)- len(self.__engine.get_possibilities()))
+        self.__possibilities = self.__engine.get_possibilities()
+
+        # Going back to the main menu
+        self.back()
 
     def search(self):
         """The function to search based on the given text"""
         self.clear()
         self.__search_movies = []
+        self.__search_labels = []
+        self.__search_buttons = []
         # Putting the movies that match the search into a list
         for movie in self.__movies:
-            if self.__search_variable.get() in movie.get_name():
+            if self.__search_variable.get().upper() in movie.get_name().upper():
                 self.__search_movies.append(movie)
+                
+        for i in range(len(self.__search_movies)):
+            self.__search_labels.append(Label(self.__search_frame, text="{}    {}%".format(self.__search_movies[i].get_name(), self.percentage(self.__engine.possibility(self.__search_movies[i])))))
 
-        self.__search_labels = []
-        for movie in self.__search_movies:
-            movie_tuple = [item for item in self.__possibilities if item[1] == movie.id]
-            self.__search_labels.append(Label(self.__search_frame, text="{}    {}".format(movie.get_name(), movie_tuple[0][0])))
-
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[0].get_name()), command=lambda :self.rate(self.__search_movies[0])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[1].get_name()), command=lambda :self.rate(self.__search_movies[1])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[2].get_name()), command=lambda :self.rate(self.__search_movies[2])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[3].get_name()), command=lambda :self.rate(self.__search_movies[3])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[4].get_name()), command=lambda :self.rate(self.__search_movies[4])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[5].get_name()), command=lambda :self.rate(self.__search_movies[5])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[6].get_name()), command=lambda :self.rate(self.__search_movies[6])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[7].get_name()), command=lambda :self.rate(self.__search_movies[7])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[8].get_name()), command=lambda :self.rate(self.__search_movies[8])))
+        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[9].get_name()), command=lambda :self.rate(self.__search_movies[9])))
+          
+        if len(self.__search_labels) > 10:
+            self.__search_labels = self.__search_labels[0:9]
+            self.__search_buttons = self.__search_buttons[0:9]
+        
         for i in range(len(self.__search_labels)):
-            self.__search_labels[i].grid(row=0, column=0)
+            self.__search_labels[i].grid(row=i+1, column=0, sticky="WE")
+            self.__search_buttons[i].grid(row=i+1, column=1, sticky="WE")
+
+        # Putting the heading label on
+        message = "Movie:    Possibility Percentage:"
+        if len(self.__search_labels) == 0:
+            message = "There were no movies that matched your search!"
+            
+        self.__head_label = Label(self.__search_frame, text=message)
+        self.__head_label.grid(row=0, column=0)
+        self.__search_frame.grid(column=0, row=1, columnspan=2)
         
     def clear(self):
-        self.__reccomend_frame.grid_forget()
-        self.__search_frame.grid_forget()
-        self.__rate_frame.grid_forget()
-        self.__exit_frame.grid_forget()
+        """The function to remove the main frame"""
+        try:
+            self.__reccomend_frame.grid_forget()
+        except:
+            pass
+
+        try:
+            self.__search_frame.grid_forget()
+            self.__head_label.grid_forget()
+            for i in range(len(self.__search_labels)):
+                self.__search_labels[i].grid_forget()
+                self.__search_buttons[i].grid_forget()
+            self.__search_labels = []
+            self.__search_buttons = []
+        except:
+            pass
+
+        try:
+            self.__rate_frame.grid_forget()
+        except:
+            pass
 
     def percentage(self, index):
         """Given a index it returns the percentile it is in in the range of ratings"""
         range_indexs = self.__possibilities[-1][0] - self.__possibilities[0][0]
         percentage = round(100*(-self.__possibilities[0][0]+index)/range_indexs)
         return percentage
+
+    def quit(self):
+        self.__parent.destroy()
+
+    def back(self):
+        self.clear()
+        self.__reccomend_frame.grid(row=1, column=0)
 
 class User:
     """the assisting class that stores a user and all its properties"""
@@ -153,7 +239,7 @@ class User:
     def rate(self, movie, rating):
         """add a movie to the rating dict, and then a corresponding (dis)liked set"""
         self.__ratings[movie] = rating
-        self.rate(movie)
+        self.__rate(movie)
 
     def get_ratings(self):
         """helper method for accessing the dict"""
