@@ -65,18 +65,57 @@ class Navigation:
 
         self.__search_variable = StringVar()
         self.__search_entry = Entry(self.__parent, textvariable = self.__search_variable)
-        self.__search_entry.grid(row=0, column=0)
+        self.__search_entry.grid(row=0, column=0, sticky="WENS")
+
+        # Setting up the intial frames
+        self.__reccomend_frame = Frame(self.__parent)
+        self.__search_frame = Frame(self.__parent)
+        self.__rate_frame = Frame(self.__parent)
+        self.__exit_frame = Frame(self.__parent)
 
         # Setting up the intial reccomendations
-        self.__reccomend_frame = Frame(self.__parent)
-        self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies")
+        self.__reccomend_frame.grid(row=1, column=0, columnspan=2)
+        self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies\nMovie:    Percentage Rating:")
         self.__reccomend_label.grid(row=0, column=0)
+        self.__reccomend_labels = []
         
+        # Making the reccomendation labels
+        for possibility, movie in self.__possibilities[-number_reccomendations:]:
+            self.__reccomend_labels.append(Label(self.__reccomend_frame, text="{},    {}%".format(movie.get_name(), self.percentage(possibility))))
+    
+        for i in range(len(self.__reccomend_labels)):
+            self.__reccomend_labels[i].grid(row=6-i, column=0)
+
         
 
     def search(self):
         """The function to search based on the given text"""
-        pass
+        self.clear()
+        self.__search_movies = []
+        # Putting the movies that match the search into a list
+        for movie in self.__movies:
+            if self.__search_variable.get() in movie.get_name():
+                self.__search_movies.append(movie)
+
+        self.__search_labels = []
+        for movie in self.__search_movies:
+            movie_tuple = [item for item in self.__possibilities if item[1] == movie.id]
+            self.__search_labels.append(Label(self.__search_frame, text="{}    {}".format(movie.get_name(), movie_tuple[0][0])))
+
+        for i in range(len(self.__search_labels)):
+            self.__search_labels[i].grid(row=0, column=0)
+        
+    def clear(self):
+        self.__reccomend_frame.grid_forget()
+        self.__search_frame.grid_forget()
+        self.__rate_frame.grid_forget()
+        self.__exit_frame.grid_forget()
+
+    def percentage(self, index):
+        """Given a index it returns the percentile it is in in the range of ratings"""
+        range_indexs = self.__possibilities[-1][0] - self.__possibilities[0][0]
+        percentage = round(100*(-self.__possibilities[0][0]+index)/range_indexs)
+        return percentage
 
 class User:
     """the assisting class that stores a user and all its properties"""
