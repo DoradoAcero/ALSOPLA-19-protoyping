@@ -114,12 +114,12 @@ class Navigation:
 
     def final_rate(self, movie):
         """the function to update the rating of the movie for the user"""
-        # Updating the users likes
+        
+        # Updating the users ratings
         self.__users[self.__MAIN_USER-1].rate(movie.id, int(int(self.__rate_variable.get())/2))
         
         # Updating the engine to accomodate
         self.__engine = Engine(self.__users, self.__movies, self.__MAIN_USER)
-        print(len(self.__possibilities)- len(self.__engine.get_possibilities()))
         self.__possibilities = self.__engine.get_possibilities()
 
         # Going back to the main menu
@@ -134,29 +134,49 @@ class Navigation:
         # Putting the movies that match the search into a list
         for movie in self.__movies:
             if self.__search_variable.get().upper() in movie.get_name().upper():
-                self.__search_movies.append(movie)
-                
+                if not movie.id in self.__users[self.__MAIN_USER-1].get_ratings().keys():
+                    self.__search_movies.append(movie)
+        if len(self.__search_movies) > 10:
+            self.__search_movies = self.__search_movies[0:9]
+            
         for i in range(len(self.__search_movies)):
             self.__search_labels.append(Label(self.__search_frame, text="{}    {}%".format(self.__search_movies[i].get_name(), self.percentage(self.__engine.possibility(self.__search_movies[i])))))
-
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[0].get_name()), command=lambda :self.rate(self.__search_movies[0])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[1].get_name()), command=lambda :self.rate(self.__search_movies[1])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[2].get_name()), command=lambda :self.rate(self.__search_movies[2])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[3].get_name()), command=lambda :self.rate(self.__search_movies[3])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[4].get_name()), command=lambda :self.rate(self.__search_movies[4])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[5].get_name()), command=lambda :self.rate(self.__search_movies[5])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[6].get_name()), command=lambda :self.rate(self.__search_movies[6])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[7].get_name()), command=lambda :self.rate(self.__search_movies[7])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[8].get_name()), command=lambda :self.rate(self.__search_movies[8])))
-        self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[9].get_name()), command=lambda :self.rate(self.__search_movies[9])))
-          
-        if len(self.__search_labels) > 10:
-            self.__search_labels = self.__search_labels[0:9]
-            self.__search_buttons = self.__search_buttons[0:9]
+            
+        # To all who read this, I'm sorry, looping it didnt work and this was the only option, I am probably dead from having to live with writing this horror, move on now so you dont suffer the same miserable end.
+        if len(self.__search_movies) > 9:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[9].get_name()), command=lambda :self.rate(self.__search_movies[9])))
+            
+        if len(self.__search_movies) > 8:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[8].get_name()), command=lambda :self.rate(self.__search_movies[8])))
+            
+        if len(self.__search_movies) > 7:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[7].get_name()), command=lambda :self.rate(self.__search_movies[7])))
+            
+        if len(self.__search_movies) > 6:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[6].get_name()), command=lambda :self.rate(self.__search_movies[6])))
+            
+        if len(self.__search_movies) > 5:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[5].get_name()), command=lambda :self.rate(self.__search_movies[5])))
+            
+        if len(self.__search_movies) > 4:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[4].get_name()), command=lambda :self.rate(self.__search_movies[4])))
+            
+        if len(self.__search_movies) > 3:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[3].get_name()), command=lambda :self.rate(self.__search_movies[3])))
+            
+        if len(self.__search_movies) > 2:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[2].get_name()), command=lambda :self.rate(self.__search_movies[2])))
+            
+        if len(self.__search_movies) > 1:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[1].get_name()), command=lambda :self.rate(self.__search_movies[1])))
+            
+        if len(self.__search_movies) > 0:
+            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[0].get_name()), command=lambda :self.rate(self.__search_movies[0])))
         
-        for i in range(len(self.__search_labels)):
-            self.__search_labels[i].grid(row=i+1, column=0, sticky="WE")
-            self.__search_buttons[i].grid(row=i+1, column=1, sticky="WE")
+        if len(self.__search_movies) != 0:
+            for i in range(len(self.__search_labels)):
+                self.__search_labels[i].grid(row=i+1, column=0, sticky="WE")
+                self.__search_buttons[i].grid(row=len(self.__search_labels)-i, column=1, sticky="WE")
 
         # Putting the heading label on
         message = "Movie:    Possibility Percentage:"
