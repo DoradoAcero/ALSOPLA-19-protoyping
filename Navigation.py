@@ -8,7 +8,8 @@ from tkinter.scrolledtext import *
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfile
 from tkinter import ttk
-from classic_set_engine import Engine
+#from classic_set_engine import Engine
+from weighted_set_engine import Engine
 
 class Navigation:
     
