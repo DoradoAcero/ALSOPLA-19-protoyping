@@ -9,7 +9,9 @@ from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfile
 from tkinter import ttk
 #from classic_set_engine import Engine
-from weighted_set_engine import Engine
+#from weighted_set_engine import Engine
+from weighted_genre_set_engine import Engine
+import time
 
 class Navigation:
     
@@ -77,6 +79,18 @@ class Navigation:
         self.__search_button = Button(self.__parent, text="Search", command=self.search)
         self.__search_button.grid(row=0, column=1, sticky="WE")
 
+        self.reccomend()
+
+        # Making the Quit frame
+        self.__exit_frame = Frame(self.__parent)
+        self.__exit_button = Button(self.__exit_frame, text="Quit", command=self.quit)
+        self.__back_button = Button(self.__exit_frame, text="Back", command=self.back)
+        self.__exit_button.grid(column=0, row=0, sticky="WE")
+        self.__back_button.grid(column=1, row=0, sticky="WE")
+        self.__exit_frame.grid(column=0, row=2, columnspan=2)
+
+    def reccomend(self):
+        """The reccomendations"""
         # Setting up the intial reccomendations
         self.__reccomend_frame.grid(row=1, column=0, columnspan=2)
         self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies\nMovie:    Percentage Rating:")
@@ -88,15 +102,7 @@ class Navigation:
             self.__reccomend_labels.append(Label(self.__reccomend_frame, text="{},    {}%".format(movie.get_name(), self.percentage(possibility))))
     
         for i in range(len(self.__reccomend_labels)):
-            self.__reccomend_labels[i].grid(row=6-i, column=0)
-
-        # Making the Quit frame
-        self.__exit_frame = Frame(self.__parent)
-        self.__exit_button = Button(self.__exit_frame, text="Quit", command=self.quit)
-        self.__back_button = Button(self.__exit_frame, text="Back", command=self.back)
-        self.__exit_button.grid(column=0, row=0, sticky="WE")
-        self.__back_button.grid(column=1, row=0, sticky="WE")
-        self.__exit_frame.grid(column=0, row=2, columnspan=2)
+            self.__reccomend_labels[i].grid(row=6-i, column=0, sticky="WE")
 
     def rate(self, movie):
         """the function to intiate the rating of a given movie"""
@@ -224,6 +230,7 @@ class Navigation:
 
     def back(self):
         self.clear()
+        self.reccomend()
         self.__reccomend_frame.grid(row=1, column=0)
 
 class User:
