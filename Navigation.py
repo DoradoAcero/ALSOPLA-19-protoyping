@@ -18,7 +18,9 @@ class Navigation:
         self.__users = []
         self.__movies = []
         self.__NUMBER_RECCOMENDATIONS = 5
-        self.__MAIN_USER = 6
+        # This is creating a brand new user
+        self.__MAIN_USER = User({},0)
+        self.__users.append(self.__MAIN_USER)
         
         # Importing the lines of the csv file to init the users and the movies
         import csv
@@ -116,7 +118,7 @@ class Navigation:
         """the function to update the rating of the movie for the user"""
         
         # Updating the users ratings
-        self.__users[self.__MAIN_USER-1].rate(movie.id, int(int(self.__rate_variable.get())/2))
+        self.__MAIN_USER.rate(movie.id, int(int(self.__rate_variable.get())/2))
         
         # Updating the engine to accomodate
         self.__engine = Engine(self.__users, self.__movies, self.__MAIN_USER)
@@ -134,7 +136,7 @@ class Navigation:
         # Putting the movies that match the search into a list
         for movie in self.__movies:
             if self.__search_variable.get().upper() in movie.get_name().upper():
-                if not movie.id in self.__users[self.__MAIN_USER-1].get_ratings().keys():
+                if not movie.id in self.__MAIN_USER.get_ratings().keys():
                     self.__search_movies.append(movie)
         if len(self.__search_movies) > 10:
             self.__search_movies = self.__search_movies[0:9]

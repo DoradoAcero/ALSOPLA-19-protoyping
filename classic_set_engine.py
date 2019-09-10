@@ -10,24 +10,41 @@ class Engine:
         """the main routine of the engine"""
         # Setting the current user
 
-        self.__USER = users[user-1]
-
-        # Setting the similarity indexes
-
+        self.__USER = user
         self.__similarity_index = {}
-        print("Setting up similiarity index")
-        for user in users:
-            if user == self.__USER: # Not the user being selected for
-                pass
-            else:
-                self.__similarity_index[user] = self.similarity(user)
-        print("Similiarity index setup\n")
-        print("Setting up possibility index")
         self.__possibility_index = []
-        for movie in movies:
-            if not movie.id in self.__USER.get_ratings().keys():
-                possibility = self.possibility(movie)
-                self.__possibility_index.append((possibility, movie))
+
+        # Setting the indexes
+        if len(self.__USER.get_ratings()) == 0:
+            # General ratings for all movies
+            for movie in movies:
+                liked = 0
+                disliked = 0
+                for user in users:
+                    if movie.id in user.get_liked():
+                        liked += 1
+                    elif movie.id in user.get_disliked():
+                        disliked += 1
+                if liked+disliked == 0:
+                    self.__possibility_index.append((0, movie))
+                else:
+                    self.__possibility_index.append(((liked-disliked)/(liked+disliked), movie))
+                
+        else:
+            # Specific rating for a user
+            print("Setting up similiarity index")
+            for user in users:
+                if user == self.__USER: # Not the user being selected for
+                    pass
+                else:
+                    self.__similarity_index[user] = self.similarity(user)
+            print("Similiarity index setup\n")
+            print("Setting up possibility index")
+            
+            for movie in movies:
+                if not movie.id in self.__USER.get_ratings().keys():
+                    possibility = self.possibility(movie)
+                    self.__possibility_index.append((possibility, movie))
                 
         import operator
         self.__possibility_index.sort(key = operator.itemgetter(0))
