@@ -96,13 +96,24 @@ class Navigation:
         self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies\nMovie:    Percentage Rating:")
         self.__reccomend_label.grid(row=0, column=0, sticky="WE")
         self.__reccomend_labels = []
+        self.__reccomend_buttons = []
         
         # Making the reccomendation labels
         for possibility, movie in self.__possibilities[-self.__NUMBER_RECCOMENDATIONS:]:
-            self.__reccomend_labels.append(Label(self.__reccomend_frame, text="{},    {}%".format(movie.get_name(), self.percentage(possibility))))
+            genres = ""
+            for genre in movie.get_genres():
+                genres += "{} ".format(genre)
+            self.__reccomend_labels.append(Label(self.__reccomend_frame, text="{},    {},    {}%".format(movie.get_name(), genres, self.percentage(possibility))))
+
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-1][1].get_name()), command=lambda :self.rate(self.__possibilities[-1][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-2][1].get_name()), command=lambda :self.rate(self.__possibilities[-2][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-3][1].get_name()), command=lambda :self.rate(self.__possibilities[-3][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-4][1].get_name()), command=lambda :self.rate(self.__possibilities[-4][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-5][1].get_name()), command=lambda :self.rate(self.__possibilities[-5][1])))
     
         for i in range(len(self.__reccomend_labels)):
             self.__reccomend_labels[i].grid(row=6-i, column=0, sticky="WE")
+            self.__reccomend_buttons[i].grid(row=6-i, column=1, sticky="WE")
 
     def rate(self, movie):
         """the function to intiate the rating of a given movie"""
@@ -145,25 +156,13 @@ class Navigation:
             if self.__search_variable.get().upper() in movie.get_name().upper():
                 if not movie.id in self.__MAIN_USER.get_ratings().keys():
                     self.__search_movies.append(movie)
-        if len(self.__search_movies) > 10:
-            self.__search_movies = self.__search_movies[0:9]
+        if len(self.__search_movies) > 6:
+            self.__search_movies = self.__search_movies[0:5]
             
         for i in range(len(self.__search_movies)):
             self.__search_labels.append(Label(self.__search_frame, text="{}    {}%".format(self.__search_movies[i].get_name(), self.percentage(self.__engine.possibility(self.__search_movies[i])))))
             
         # To all who read this, I'm sorry, looping it didnt work and this was the only option, I am probably dead from having to live with writing this horror, move on now so you dont suffer the same miserable end.
-        if len(self.__search_movies) > 9:
-            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[9].get_name()), command=lambda :self.rate(self.__search_movies[9])))
-            
-        if len(self.__search_movies) > 8:
-            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[8].get_name()), command=lambda :self.rate(self.__search_movies[8])))
-            
-        if len(self.__search_movies) > 7:
-            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[7].get_name()), command=lambda :self.rate(self.__search_movies[7])))
-            
-        if len(self.__search_movies) > 6:
-            self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[6].get_name()), command=lambda :self.rate(self.__search_movies[6])))
-            
         if len(self.__search_movies) > 5:
             self.__search_buttons.append(Button(self.__search_frame, text="Rate {}".format(self.__search_movies[5].get_name()), command=lambda :self.rate(self.__search_movies[5])))
             

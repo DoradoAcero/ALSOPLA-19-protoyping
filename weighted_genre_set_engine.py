@@ -19,6 +19,7 @@ class Engine:
         if len(self.__USER.get_ratings()) == 0:
             # General ratings for all movies
             for movie in movies:
+                # For each movie record how many people liked and dislike the movie
                 liked = 0
                 disliked = 0
                 for user in users:
@@ -26,9 +27,11 @@ class Engine:
                         liked += 1
                     elif movie.id in user.get_disliked():
                         disliked += 1
+                # Dividing by zero will give an error, so just append 0
                 if liked+disliked == 0:
                     self.__possibility_index.append((0, movie))
                 else:
+                    # Possibility index with similarities being 1
                     self.__possibility_index.append(((liked-disliked)/(liked+disliked), movie))
                 
         else:
@@ -38,19 +41,23 @@ class Engine:
                 if user == self.__USER: # Not the user being selected for
                     pass
                 else:
+                    # Put the user similarities into the index
                     self.__similarity_index[user] = self.similarity(user)
             print("Similiarity index setup\n")
 
+            # Genre index updating
             for movie_id in self.__USER.get_ratings().keys():
                 for movie in movies:
                     if movie.id == movie_id:
                         for genre in movie.get_genres():
+                            # For the genre, iterate by the fraction of how above average it is based on the rating of the genre
                             self.__genre_index[genre] += (self.__USER.get_ratings()[movie_id]/2.5)-0.5
                 
             print("Setting up possibility index")
             
             for movie in movies:
                 if not movie.id in self.__USER.get_ratings().keys():
+                    # Setup the possibility index
                     possibility = self.possibility(movie)
                     self.__possibility_index.append((possibility, movie))
                 
@@ -63,11 +70,15 @@ class Engine:
         similarity = 0
         for movie in user.get_ratings():
             if movie in self.__USER.get_ratings():
+                # Difference in ratings
                 difference = user.get_ratings()[movie] - self.__USER.get_ratings()[movie]
+
+                # 2.5 - the absolute difference to give a general difference in rating of movie
                 if difference < 0:
                     similarity += 2*(2.5+difference)
                 else:
                     similarity += 2*(2.5-difference)
+        # Original set math
         similarity /= len(user.get_liked() | self.__USER.get_disliked() | user.get_disliked() | self.__USER.get_liked())
         return similarity
                 
@@ -79,14 +90,18 @@ class Engine:
         ratings = 0
         for user in self.__similarity_index.keys():
             if movie.id in user.get_ratings():
+                # Weight the possibility with the rating and the similarity index
                 possibility += (self.__similarity_index[user]**2)*(user.get_ratings()[movie.id]-2.5)
                 ratings += 1
                 
         genre_possibility = 0
         for genre in movie.get_genres():
+            # Find the amount of likeness to the users liked genres
             genre_possibility += self.__genre_index[genre]
-        
+
+        # Making sure there is no /0
         if ratings != 0:
+            # possibility is normal, as number of movies rated, the weighting of genre decreases
             return possibility/ratings + genre_possibility/(len(self.__USER.get_ratings())**2)
         else:
             return 0
