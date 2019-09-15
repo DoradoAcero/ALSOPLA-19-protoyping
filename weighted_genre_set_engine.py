@@ -102,7 +102,7 @@ class Engine:
         # Making sure there is no /0
         if ratings != 0:
             # possibility is normal, as number of movies rated, the weighting of genre decreases
-            return possibility/ratings + genre_possibility/(len(self.__USER.get_ratings())**2)
+            return possibility/ratings + genre_possibility/(len(self.__USER.get_ratings())**2)/len(movie.get_genres())
         else:
             return 0
 
