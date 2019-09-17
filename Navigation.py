@@ -55,10 +55,28 @@ class Navigation:
                 if line_0:
                     line_0 = False
                 else:
-                    self.__movies.append(Movie(int(row[0]), row[1], row[2]))
+                    # Changing the ", The" formatting to "The lakjsdhfi" format
+                    if ", The" in row[1]:
+                        name = "The " + row[1]
+                        commas = []
+                        bracket = False
+                        
+                        for i in range(len(name)):
+                            if not bracket:
+                                if name[i] == ",":
+                                    commas.append(i)
+                                    
+                                elif name[i] == "(":
+                                    bracket = True
+                                    
+                        final_name = name[:commas[-1]] + name[commas[-1]+4:] 
+                        self.__movies.append(Movie(int(row[0]), final_name, row[2]))
+                    else:
+                        self.__movies.append(Movie(int(row[0]), row[1], row[2]))
+                        
         print("{} movies imported\n".format(len(self.__movies)))
         print("Setting up engine")
-        # Setting up the engine, in this current version there is only the classic set engine, I need to think about how to change but given i only have the set engine i will not think about that yet
+        # Setting up the engine
         self.__engine = Engine(self.__users, self.__movies, self.__MAIN_USER)
         print("Engine setup\n")
         print("Setup time taken,", time.time() - old, "\n")
@@ -114,9 +132,9 @@ class Navigation:
         for possibility, movie in self.__possibilities[-self.__NUMBER_RECCOMENDATIONS:]:
             genres = ""
             for genre in movie.get_genres():
-                genres += "{} ".format(genre)
+                genres += "{}, ".format(genre)
             self.__reccomend_labels[0].append(Label(self.__reccomend_frame, text=movie.get_name()))
-            self.__reccomend_labels[1].append(Label(self.__reccomend_frame, text=genres))
+            self.__reccomend_labels[1].append(Label(self.__reccomend_frame, text=genres[:-2]))
             self.__reccomend_labels[2].append(Label(self.__reccomend_frame, text="{}%".format(self.percentage(possibility))))
 
         self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-1][1].get_name()), command=lambda :self.rate(self.__possibilities[-1][1])))
@@ -139,12 +157,12 @@ class Navigation:
         self.__head_label.grid(column=0, row=0, columnspan=2, sticky="WE")
 
         self.__rate_variable = StringVar()
-        self.__rate_scale = Scale(self.__rate_frame, from_=0, to=5, resolution=0.5, orient=HORIZONTAL)
-        self.__rate_scale.grid(row=1, column=0, sticky="WENS")
+        self.__rate_scale = Scale(self.__rate_frame, from_=0, to=5, resolution=0.1, orient=HORIZONTAL)
+        self.__rate_scale.grid(row=1, column=0, sticky="WE")
         self.__confirm_button = Button(self.__rate_frame, text="Rate", command=lambda :self.final_rate(movie))
         self.__confirm_button.grid(column=0, row=2, columnspan=2, sticky="WE")
 
-        self.__rate_frame.grid(column=0, row=1, columnspan=2)
+        self.__rate_frame.grid(column=0, row=1, columnspan=2, sticky="WE")
 
     def final_rate(self, movie):
         """the function to update the rating of the movie for the user"""
