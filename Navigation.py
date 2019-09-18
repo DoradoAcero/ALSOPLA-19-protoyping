@@ -16,7 +16,7 @@ import time
 class Navigation:
     
     def __init__(self, __parent):
-        """The main rountine of the navigation classs"""
+        """The main rountine of the navigation class"""
         self.__parent = __parent
         self.__users = []
         self.__movies = []
@@ -36,15 +36,18 @@ class Navigation:
             user = 1
             ratings = {}
             for row in csv_reader:
+                # Skip over line 1
                 if line_0:
                     line_0 = False
                 else:
+                    # If the user is the correct user for the line
                     if user != int(row[0]):
                         self.__users.append(User(ratings, user))
                         ratings = {int(row[1]):float(row[2])}
                         user += 1
                     else:
                         ratings[int(row[1])] = float(row[2])
+                        
         self.__users.append(User(ratings, user))
         print("{} users imported\n".format(len(self.__users)))
         print("Importing movies")
@@ -55,7 +58,7 @@ class Navigation:
                 if line_0:
                     line_0 = False
                 else:
-                    # Changing the ", The" formatting to "The lakjsdhfi" format
+                    # Changing the "lakjsdhfi, The" formatting to "The lakjsdhfi" format
                     if ", The" in row[1]:
                         name = "The " + row[1]
                         commas = []
@@ -68,9 +71,11 @@ class Navigation:
                                     
                                 elif name[i] == "(":
                                     bracket = True
-                                    
-                        final_name = name[:commas[-1]] + name[commas[-1]+4:] 
-                        self.__movies.append(Movie(int(row[0]), final_name, row[2]))
+                        try:
+                            final_name = name[:commas[-1]] + name[commas[-1]+5:] 
+                            self.__movies.append(Movie(int(row[0]), final_name, row[2]))
+                        except:
+                            self.__movies.append(Movie(int(row[0]), row[1], row[2]))
                     else:
                         self.__movies.append(Movie(int(row[0]), row[1], row[2]))
                         
@@ -97,6 +102,8 @@ class Navigation:
         self.__search_button = Button(self.__parent, text="Search", command=self.search)
         self.__search_button.grid(row=0, column=1, sticky="WE")
 
+        # Setting up the reccomendations
+        self.math_setup()
         self.reccomend()
 
         # Making the Quit buttons
@@ -105,31 +112,71 @@ class Navigation:
         self.__exit_button.grid(column=0, row=2, sticky="WE")
         self.__back_button.grid(column=1, row=2, sticky="WE")
 
-    def reccomend(self):
-        """The reccomendations"""
-        # Setting up the intial reccomendations
+        # Making the genre buttons
+        self.__genre_buttons = []
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Action", command=lambda:self.genre_reccomend("Action")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Film-Noir", command=lambda:self.genre_reccomend("Film-Noir")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Thriller", command=lambda:self.genre_reccomend("Thriller")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Horror", command=lambda:self.genre_reccomend("Horror")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Mystery", command=lambda:self.genre_reccomend("Mystery")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="War", command=lambda:self.genre_reccomend("War")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Sci-Fi", command=lambda:self.genre_reccomend("Sci-Fi")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Drama", command=lambda:self.genre_reccomend("Drama")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Musical", command=lambda:self.genre_reccomend("Musical")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Fantasy", command=lambda:self.genre_reccomend("Fantasy")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Animation", command=lambda:self.genre_reccomend("Animation")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="IMAX", command=lambda:self.genre_reccomend("IMAX")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Documentary", command=lambda:self.genre_reccomend("Documentary")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Romance", command=lambda:self.genre_reccomend("Romance")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Comedy", command=lambda:self.genre_reccomend("Comedy")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="(no genres listed)", command=lambda:self.genre_reccomend("(no genres listed)")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Western", command=lambda:self.genre_reccomend("Western")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Children", command=lambda:self.genre_reccomend("Children")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Adventure", command=lambda:self.genre_reccomend("Adventure")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Crime", command=lambda:self.genre_reccomend("Crime")))
+
+        for i in range(len(self.__genre_buttons)):
+            self.__genre_buttons[i].grid(column=0, row=3+i, sticky = "WE")
+
+
+    def math_setup(self):
+        """Setting up the normal distribution variables to give user accesible ratings"""
+        self.__mean = 0
+        for possibility, movie in self.__possibilities:
+            self.__mean += possibility
+        self.__mean /= len(self.__possibilities)
+
+        self.__std = self.__possibilities[round(len(self.__possibilities)*0.68)][0] - self.__mean
+        
+
+    def genre_reccomend(self, genre):
+        genre_movies = []
+        for possibility, movie in self.__possibilities:
+            if genre in movie.get_genres():
+                genre_movies.append((possibility, movie))
         self.__reccomend_frame.grid(row=1, column=0, columnspan=2)
         
         self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies")
-        self.__reccomend_label.grid(row=0, column=0, columnspan=4, sticky="WE")
+        self.__reccomend_label.grid(row=0, column=0, columnspan=5, sticky="WE")
         
         self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Movie:")
-        self.__reccomend_movie_label.grid(row=1, column=0, sticky="WE")
-        
-        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Genre:")
         self.__reccomend_movie_label.grid(row=1, column=1, sticky="WE")
         
-        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Percentage:")
+        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Genre:")
         self.__reccomend_movie_label.grid(row=1, column=2, sticky="WE")
+        
+        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Percentage:")
+        self.__reccomend_movie_label.grid(row=1, column=3, sticky="WE")
 
         self.__reccomend_rate_label = Label(self.__reccomend_frame, text="Rate:")
-        self.__reccomend_rate_label.grid(row=1, column=3, sticky="WE")
-        
+        self.__reccomend_rate_label.grid(row=1, column=4, sticky="WE")
+
+        # 4 columns, so four lists and sublist to occupy
         self.__reccomend_labels = [[], [], []]
         self.__reccomend_buttons = []
         
         # Making the reccomendation labels
-        for possibility, movie in self.__possibilities[-self.__NUMBER_RECCOMENDATIONS:]:
+        for possibility, movie in genre_movies[-20:]:
             genres = ""
             for genre in movie.get_genres():
                 genres += "{}, ".format(genre)
@@ -137,17 +184,96 @@ class Navigation:
             self.__reccomend_labels[1].append(Label(self.__reccomend_frame, text=genres[:-2]))
             self.__reccomend_labels[2].append(Label(self.__reccomend_frame, text="{}%".format(self.percentage(possibility))))
 
+        # Buttons have hissy fits so manual appending YAY!!!
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-1][1].get_name()), command=lambda :self.rate(genre_movies[-1][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-2][1].get_name()), command=lambda :self.rate(genre_movies[-2][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-3][1].get_name()), command=lambda :self.rate(genre_movies[-3][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-4][1].get_name()), command=lambda :self.rate(genre_movies[-4][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-5][1].get_name()), command=lambda :self.rate(genre_movies[-5][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-6][1].get_name()), command=lambda :self.rate(genre_movies[-6][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-7][1].get_name()), command=lambda :self.rate(genre_movies[-7][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-8][1].get_name()), command=lambda :self.rate(genre_movies[-8][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-9][1].get_name()), command=lambda :self.rate(genre_movies[-9][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-10][1].get_name()), command=lambda :self.rate(genre_movies[-10][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-11][1].get_name()), command=lambda :self.rate(genre_movies[-11][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-12][1].get_name()), command=lambda :self.rate(genre_movies[-12][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-13][1].get_name()), command=lambda :self.rate(genre_movies[-13][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-14][1].get_name()), command=lambda :self.rate(genre_movies[-14][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-15][1].get_name()), command=lambda :self.rate(genre_movies[-15][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-16][1].get_name()), command=lambda :self.rate(genre_movies[-16][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-17][1].get_name()), command=lambda :self.rate(genre_movies[-17][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-18][1].get_name()), command=lambda :self.rate(genre_movies[-18][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-19][1].get_name()), command=lambda :self.rate(genre_movies[-19][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(genre_movies[-20][1].get_name()), command=lambda :self.rate(genre_movies[-20][1])))
+    
+        # gridding the labels and buttons
+        for i in range(len(self.__reccomend_labels[0])):
+            self.__reccomend_labels[0][i].grid(row=22-i, column=1, sticky="WE")
+            self.__reccomend_labels[1][i].grid(row=22-i, column=2, sticky="WE")
+            self.__reccomend_labels[2][i].grid(row=22-i, column=3, sticky="WE")
+            self.__reccomend_buttons[i].grid(row=i+3, column=4, sticky="WE")
+
+    def reccomend(self):
+        """The reccomendations"""
+        # Setting up the intial reccomendations
+        self.__reccomend_frame.grid(row=1, column=0, columnspan=2)
+        
+        self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies")
+        self.__reccomend_label.grid(row=0, column=0, columnspan=5, sticky="WE")
+        
+        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Movie:")
+        self.__reccomend_movie_label.grid(row=1, column=1, sticky="WE")
+        
+        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Genre:")
+        self.__reccomend_movie_label.grid(row=1, column=2, sticky="WE")
+        
+        self.__reccomend_movie_label = Label(self.__reccomend_frame, text="Percentage:")
+        self.__reccomend_movie_label.grid(row=1, column=3, sticky="WE")
+
+        self.__reccomend_rate_label = Label(self.__reccomend_frame, text="Rate:")
+        self.__reccomend_rate_label.grid(row=1, column=4, sticky="WE")
+
+        # 4 columns, so four lists and sublist to occupy
+        self.__reccomend_labels = [[], [], []]
+        self.__reccomend_buttons = []
+        
+        # Making the reccomendation labels
+        for possibility, movie in self.__possibilities[-20:]:
+            genres = ""
+            for genre in movie.get_genres():
+                genres += "{}, ".format(genre)
+            self.__reccomend_labels[0].append(Label(self.__reccomend_frame, text=movie.get_name()))
+            self.__reccomend_labels[1].append(Label(self.__reccomend_frame, text=genres[:-2]))
+            self.__reccomend_labels[2].append(Label(self.__reccomend_frame, text="{}%".format(self.percentage(possibility))))
+
+        # Buttons have hissy fits so manual appending YAY!!!
         self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-1][1].get_name()), command=lambda :self.rate(self.__possibilities[-1][1])))
         self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-2][1].get_name()), command=lambda :self.rate(self.__possibilities[-2][1])))
         self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-3][1].get_name()), command=lambda :self.rate(self.__possibilities[-3][1])))
         self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-4][1].get_name()), command=lambda :self.rate(self.__possibilities[-4][1])))
         self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-5][1].get_name()), command=lambda :self.rate(self.__possibilities[-5][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-6][1].get_name()), command=lambda :self.rate(self.__possibilities[-6][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-7][1].get_name()), command=lambda :self.rate(self.__possibilities[-7][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-8][1].get_name()), command=lambda :self.rate(self.__possibilities[-8][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-9][1].get_name()), command=lambda :self.rate(self.__possibilities[-9][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-10][1].get_name()), command=lambda :self.rate(self.__possibilities[-10][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-11][1].get_name()), command=lambda :self.rate(self.__possibilities[-11][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-12][1].get_name()), command=lambda :self.rate(self.__possibilities[-12][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-13][1].get_name()), command=lambda :self.rate(self.__possibilities[-13][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-14][1].get_name()), command=lambda :self.rate(self.__possibilities[-14][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-15][1].get_name()), command=lambda :self.rate(self.__possibilities[-15][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-16][1].get_name()), command=lambda :self.rate(self.__possibilities[-16][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-17][1].get_name()), command=lambda :self.rate(self.__possibilities[-17][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-18][1].get_name()), command=lambda :self.rate(self.__possibilities[-18][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-19][1].get_name()), command=lambda :self.rate(self.__possibilities[-19][1])))
+        self.__reccomend_buttons.append(Button(self.__reccomend_frame, text="Rate {}".format(self.__possibilities[-20][1].get_name()), command=lambda :self.rate(self.__possibilities[-20][1])))
     
+        # Gridding the labels and buttons
         for i in range(len(self.__reccomend_labels[0])):
-            self.__reccomend_labels[0][i].grid(row=7-i, column=0, sticky="WE")
-            self.__reccomend_labels[1][i].grid(row=7-i, column=1, sticky="WE")
-            self.__reccomend_labels[2][i].grid(row=7-i, column=2, sticky="WE")
-            self.__reccomend_buttons[i].grid(row=i+3, column=3, sticky="WE")
+            self.__reccomend_labels[0][i].grid(row=22-i, column=1, sticky="WE")
+            self.__reccomend_labels[1][i].grid(row=22-i, column=2, sticky="WE")
+            self.__reccomend_labels[2][i].grid(row=22-i, column=3, sticky="WE")
+            self.__reccomend_buttons[i].grid(row=i+3, column=4, sticky="WE")
 
     def rate(self, movie):
         """the function to intiate the rating of a given movie"""
@@ -175,6 +301,8 @@ class Navigation:
         self.__possibilities = self.__engine.get_possibilities()
 
         # Going back to the main menu
+        
+        self.math_setup()
         self.back()
 
     def search(self):
@@ -252,9 +380,13 @@ class Navigation:
 
     def percentage(self, index):
         """Given a index it returns the percentile it is in in the range of ratings"""
-        range_indexs = self.__possibilities[-1][0] - self.__possibilities[0][0]
-        percentage = round(100*(-self.__possibilities[0][0]+index)/range_indexs)
-        return percentage
+        number = len(self.__MAIN_USER.get_ratings())
+        
+        if number > 0:
+            return 100*(index/(1/number + 1))
+            
+        else:
+            return 100*index
 
     def quit(self):
         self.__parent.destroy()
