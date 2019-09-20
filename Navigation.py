@@ -111,29 +111,32 @@ class Navigation:
         self.__back_button = Button(self.__parent, text="Back", command=self.back)
         self.__exit_button.grid(column=0, row=2, sticky="WE")
         self.__back_button.grid(column=1, row=2, sticky="WE")
+        self.genres()
 
+
+    def genres(self):
         # Making the genre buttons
         self.__genre_buttons = []
         self.__genre_buttons.append(Button(self.__reccomend_frame, text="Action", command=lambda:self.genre_reccomend("Action")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Film-Noir", command=lambda:self.genre_reccomend("Film-Noir")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Thriller", command=lambda:self.genre_reccomend("Thriller")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Horror", command=lambda:self.genre_reccomend("Horror")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Mystery", command=lambda:self.genre_reccomend("Mystery")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="War", command=lambda:self.genre_reccomend("War")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Sci-Fi", command=lambda:self.genre_reccomend("Sci-Fi")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Drama", command=lambda:self.genre_reccomend("Drama")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Musical", command=lambda:self.genre_reccomend("Musical")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Fantasy", command=lambda:self.genre_reccomend("Fantasy")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Animation", command=lambda:self.genre_reccomend("Animation")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="IMAX", command=lambda:self.genre_reccomend("IMAX")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Documentary", command=lambda:self.genre_reccomend("Documentary")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Romance", command=lambda:self.genre_reccomend("Romance")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Comedy", command=lambda:self.genre_reccomend("Comedy")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="(no genres listed)", command=lambda:self.genre_reccomend("(no genres listed)")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Western", command=lambda:self.genre_reccomend("Western")))
-        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Children", command=lambda:self.genre_reccomend("Children")))
         self.__genre_buttons.append(Button(self.__reccomend_frame, text="Adventure", command=lambda:self.genre_reccomend("Adventure")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Animation", command=lambda:self.genre_reccomend("Animation")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Children", command=lambda:self.genre_reccomend("Children")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Comedy", command=lambda:self.genre_reccomend("Comedy")))
         self.__genre_buttons.append(Button(self.__reccomend_frame, text="Crime", command=lambda:self.genre_reccomend("Crime")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Documentary", command=lambda:self.genre_reccomend("Documentary")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Drama", command=lambda:self.genre_reccomend("Drama")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Fantasy", command=lambda:self.genre_reccomend("Fantasy")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Film-Noir", command=lambda:self.genre_reccomend("Film-Noir")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Horror", command=lambda:self.genre_reccomend("Horror")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="IMAX", command=lambda:self.genre_reccomend("IMAX")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Musical", command=lambda:self.genre_reccomend("Musical")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Mystery", command=lambda:self.genre_reccomend("Mystery")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="No Genres", command=lambda:self.genre_reccomend("(no genres listed)")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Romance", command=lambda:self.genre_reccomend("Romance")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Sci-Fi", command=lambda:self.genre_reccomend("Sci-Fi")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Thriller", command=lambda:self.genre_reccomend("Thriller")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="War", command=lambda:self.genre_reccomend("War")))
+        self.__genre_buttons.append(Button(self.__reccomend_frame, text="Western", command=lambda:self.genre_reccomend("Western")))
 
         for i in range(len(self.__genre_buttons)):
             self.__genre_buttons[i].grid(column=0, row=3+i, sticky = "WE")
@@ -150,7 +153,9 @@ class Navigation:
         
 
     def genre_reccomend(self, genre):
+        self.clear()
         genre_movies = []
+        self.genres()
         for possibility, movie in self.__possibilities:
             if genre in movie.get_genres():
                 genre_movies.append((possibility, movie))
@@ -216,6 +221,8 @@ class Navigation:
     def reccomend(self):
         """The reccomendations"""
         # Setting up the intial reccomendations
+        self.clear()
+        self.genres()
         self.__reccomend_frame.grid(row=1, column=0, columnspan=2)
         
         self.__reccomend_label = Label(self.__reccomend_frame, text="Reccommended Movies")
@@ -358,12 +365,14 @@ class Navigation:
     def clear(self):
         """The function to remove the main frame"""
         try:
-            self.__reccomend_frame.grid_forget()
+            self.__reccomend_frame.destroy()
+            self.__reccomend_frame = Frame(self.__parent)
         except:
             pass
 
         try:
-            self.__search_frame.grid_forget()
+            self.__search_frame.destroy()
+            self.__search_frame = Frame(self.__parent)
             self.__head_label.grid_forget()
             for i in range(len(self.__search_labels)):
                 self.__search_labels[i].grid_forget()
@@ -374,7 +383,8 @@ class Navigation:
             pass
 
         try:
-            self.__rate_frame.grid_forget()
+            self.__rate_frame.destroy()
+            self.__rate_frame = Frame(self.__parent)
         except:
             pass
 
@@ -383,10 +393,10 @@ class Navigation:
         number = len(self.__MAIN_USER.get_ratings())
         
         if number > 0:
-            return 100*(index/(1/number + 1))
+            return round((100*(index/(1/number + 1))+100)/2)
             
         else:
-            return 100*index
+            return round(((100*index)+100)/2)
 
     def quit(self):
         self.__parent.destroy()
