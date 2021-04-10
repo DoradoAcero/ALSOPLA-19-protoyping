@@ -1,7 +1,4 @@
-"""
-Navigation_v2.py
-created by lachlan on 27/8/19
-"""
+
 
 from tkinter import *
 from tkinter.scrolledtext import *
